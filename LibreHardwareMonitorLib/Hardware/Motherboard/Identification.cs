@@ -105,8 +105,13 @@ internal class Identification
         }
     }
 
-    public static Model GetModel(string name)
+    public static Model GetModel(BaseBoardInformation board)
     {
+        if (board.ManufacturerName.Equals("GMKtec", StringComparison.OrdinalIgnoreCase) &&
+            board.SerialNumber.StartsWith("AXB35", StringComparison.OrdinalIgnoreCase))
+            return Model.GMKTEC_EVO_X2;
+
+        var name = board.ProductName;
         switch (name)
         {
             case var _ when name.Equals("X870 AORUS ELITE WIFI7", StringComparison.OrdinalIgnoreCase):
@@ -203,7 +208,7 @@ internal class Identification
             case var _ when name.Equals("ROG STRIX B550-I GAMING", StringComparison.OrdinalIgnoreCase):
                 return Model.ROG_STRIX_B550_I_GAMING;
             case var _ when name.Equals("ROG STRIX B760-I GAMING WIFI", StringComparison.OrdinalIgnoreCase):
-                return Model.ROG_STRIX_B760_I_GAMING_WIFI; 
+                return Model.ROG_STRIX_B760_I_GAMING_WIFI;
             case var _ when name.Equals("ROG STRIX X570-E GAMING", StringComparison.OrdinalIgnoreCase):
                 return Model.ROG_STRIX_X570_E_GAMING;
             case var _ when name.Equals("ROG STRIX X570-E GAMING WIFI II", StringComparison.OrdinalIgnoreCase):

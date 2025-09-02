@@ -78,6 +78,16 @@ internal static class Mutexes
         return WaitMutex(_ecMutex, millisecondsTimeout);
     }
 
+    public static DisposableMutexSection OpenEc(int millisecondsTimeout, ExceptionFactory exceptionFactory)
+    {
+        if (WaitMutex(_ecMutex, millisecondsTimeout))
+        {
+            return new DisposableMutexSection(_ecMutex);
+        }
+
+        throw exceptionFactory();
+    }
+
     public static void ReleaseEc()
     {
         _ecMutex?.ReleaseMutex();
@@ -111,4 +121,16 @@ internal static class Mutexes
             return false;
         }
     }
+
+
+    public class DisposableMutexSection : IDisposable
+    {
+        private readonly Mutex _parent;
+
+        public DisposableMutexSection(Mutex parent) => this._parent = parent;
+
+        public void Dispose() => _parent.ReleaseMutex();
+    }
+
+    public delegate Exception ExceptionFactory();
 }

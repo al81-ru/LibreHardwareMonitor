@@ -298,6 +298,8 @@ public enum Model
     //Supermicro
     X11SWN_E,
 
+    GMKTEC_EVO_X2,
+
     // Unknown
     Unknown
 }

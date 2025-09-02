@@ -14,6 +14,7 @@ public class WindowsEmbeddedController : EmbeddedController
 
     protected override IEmbeddedControllerIO AcquireIOInterface()
     {
-        return new WindowsEmbeddedControllerIO();
+        // TODO will be disposed
+        return WindowsEmbeddedControllerIO.Instance;
     }
 }

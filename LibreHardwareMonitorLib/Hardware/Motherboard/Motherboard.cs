@@ -38,7 +38,7 @@ public class Motherboard : IHardware
         SMBios = smBios;
 
         Manufacturer = smBios.Board == null ? Manufacturer.Unknown : Identification.GetManufacturer(smBios.Board.ManufacturerName);
-        Model = smBios.Board == null ? Model.Unknown : Identification.GetModel(smBios.Board.ProductName);
+        Model = smBios.Board == null ? Model.Unknown : Identification.GetModel(smBios.Board);
 
         if (smBios.Board != null)
         {

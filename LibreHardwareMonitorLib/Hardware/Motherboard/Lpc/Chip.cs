@@ -27,6 +27,7 @@ internal enum Chip : ushort
     F71889ED = 0x0909,
     F71889F = 0x0723,
 
+    IT5570E = 0x5570,
     IT8613E = 0x8613,
     IT8620E = 0x8620,
     IT8625E = 0x8625,

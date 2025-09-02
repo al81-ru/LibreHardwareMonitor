@@ -31,18 +31,23 @@ public class WindowsEmbeddedControllerIO : IEmbeddedControllerIO
 
     private readonly LpcAcpiEc _pawnModule;
 
+    public static WindowsEmbeddedControllerIO Instance { get; }
+
+    static WindowsEmbeddedControllerIO()
+    {
+        // still can be disposed
+        Instance = new WindowsEmbeddedControllerIO();
+    }
+
     public WindowsEmbeddedControllerIO()
     {
         _pawnModule = new LpcAcpiEc();
-
-        if (!Mutexes.WaitEc(10))
-        {
-            throw new BusMutexLockingFailedException();
-        }
     }
 
     public void Read(ushort[] registers, byte[] data)
     {
+        using var section = Mutexes.OpenEc(10, () => new BusMutexLockingFailedException());
+
         Trace.Assert(registers.Length <= data.Length,
                      "data buffer length has to be greater or equal to the registers array length");
 
@@ -77,6 +82,29 @@ public class WindowsEmbeddedControllerIO : IEmbeddedControllerIO
     {
         WriteLoop(register, value, WriteByteOp);
     }
+
+
+    // bytes only
+    public void Write(byte[] registers, byte[] values, int waitTimeoutMs)
+    {
+        using var section = Mutexes.OpenEc(waitTimeoutMs, () => new BusMutexLockingFailedException());
+
+        Trace.Assert(registers.Length <= values.Length,
+            "data values length has to be greater or equal to the registers array length");
+
+        for (int i = 0; i < registers.Length; i++)
+        {
+            WriteLoop(registers[i], values[i], WriteByteOp);
+        }
+    }
+
+    public void WriteSingle(byte register, byte value, int waitTimeoutMs)
+    {
+        using var section = Mutexes.OpenEc(waitTimeoutMs, () => new BusMutexLockingFailedException());
+
+        WriteLoop(register, value, WriteByteOp);
+    }
+
 
     public void Dispose()
     {
