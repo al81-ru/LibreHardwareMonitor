@@ -82,6 +82,8 @@ internal enum Chip : ushort
     W83687THF = 0x8541,
 
     IPMI = 0x4764,
+
+    AXB35 = 0x5570, // ?
 }
 
 internal class ChipName

@@ -22,23 +22,29 @@ public class WindowsEmbeddedControllerIO : IEmbeddedControllerIO
     private const int FailuresBeforeSkip = 20;
     private const int MaxRetries = 5;
 
-    // implementation 
+    // implementation
     private const int WaitSpins = 50;
     private bool _disposed;
 
     private int _waitReadFailures;
 
-    public WindowsEmbeddedControllerIO()
+    public static WindowsEmbeddedControllerIO Instance { get; }
+
+    static WindowsEmbeddedControllerIO()
     {
-        if (!Mutexes.WaitEc(10))
-        {
-            throw new BusMutexLockingFailedException();
-        }
+        Instance = new WindowsEmbeddedControllerIO();
     }
+
+    private WindowsEmbeddedControllerIO()
+    {
+    }
+
 
     public void Read(ushort[] registers, byte[] data)
     {
-        Trace.Assert(registers.Length <= data.Length, 
+        using var section = Mutexes.OpenEc(10, () => new BusMutexLockingFailedException());
+
+        Trace.Assert(registers.Length <= data.Length,
                      "data buffer length has to be greater or equal to the registers array length");
 
         byte bank = 0;
@@ -73,12 +79,34 @@ public class WindowsEmbeddedControllerIO : IEmbeddedControllerIO
         WriteLoop(register, value, WriteByteOp);
     }
 
+
+    // bytes only
+    public void Write(byte[] registers, byte[] values, int waitTimeoutMs)
+    {
+        Trace.Assert(registers.Length <= values.Length,
+            "data values length has to be greater or equal to the registers array length");
+
+        using var section = Mutexes.OpenEc(waitTimeoutMs, () => new BusMutexLockingFailedException());
+
+        for (int i = 0; i < registers.Length; i++)
+        {
+            WriteLoop(registers[i], values[i], WriteByteOp);
+        }
+    }
+
+    public void WriteSingle(byte register, byte value, int waitTimeoutMs)
+    {
+        using var section = Mutexes.OpenEc(waitTimeoutMs, () => new BusMutexLockingFailedException());
+
+        WriteLoop(register, value, WriteByteOp);
+    }
+
     public void Dispose()
     {
         if (!_disposed)
         {
+            // no usage
             _disposed = true;
-            Mutexes.ReleaseEc();
         }
     }
 

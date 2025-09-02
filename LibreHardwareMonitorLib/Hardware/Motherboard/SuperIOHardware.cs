@@ -695,17 +695,34 @@ internal sealed class SuperIOHardware : Hardware
 
     private static void GetDefaultConfiguration(ISuperIO superIO, ICollection<Voltage> v, ICollection<Temperature> t, ICollection<Fan> f, ICollection<Control> c)
     {
-        for (int i = 0; i < superIO.Voltages.Length; i++)
-            v.Add(new Voltage("Voltage #" + (i + 1), i, true));
+        if (superIO is INamedIO namedIo)
+        {
+            for (int i = 0; i < superIO.Voltages.Length; i++)
+                v.Add(new Voltage(namedIo.VoltageNames[i], i, true));
 
-        for (int i = 0; i < superIO.Temperatures.Length; i++)
-            t.Add(new Temperature("Temperature #" + (i + 1), i));
+            for (int i = 0; i < superIO.Temperatures.Length; i++)
+                t.Add(new Temperature(namedIo.TemperatureNames[i], i));
 
-        for (int i = 0; i < superIO.Fans.Length; i++)
-            f.Add(new Fan("Fan #" + (i + 1), i));
+            for (int i = 0; i < superIO.Fans.Length; i++)
+                f.Add(new Fan(namedIo.FanNames[i], i));
 
-        for (int i = 0; i < superIO.Controls.Length; i++)
-            c.Add(new Control("Fan #" + (i + 1), i));
+            for (int i = 0; i < superIO.Controls.Length; i++)
+                c.Add(new Control(namedIo.ControlNames[i], i));
+        }
+        else
+        {
+            for (int i = 0; i < superIO.Voltages.Length; i++)
+                v.Add(new Voltage("Voltage #" + (i + 1), i, true));
+
+            for (int i = 0; i < superIO.Temperatures.Length; i++)
+                t.Add(new Temperature("Temperature #" + (i + 1), i));
+
+            for (int i = 0; i < superIO.Fans.Length; i++)
+                f.Add(new Fan("Fan #" + (i + 1), i));
+
+            for (int i = 0; i < superIO.Controls.Length; i++)
+                c.Add(new Control("Fan #" + (i + 1), i));
+        }
     }
 
     private static void GetIteConfigurationsA
@@ -4327,7 +4344,7 @@ internal sealed class SuperIOHardware : Hardware
                         break;
 
                     case Model.ROG_STRIX_B760_I_GAMING_WIFI: //NCT6798D
-                     
+
                         v.Add(new Voltage("Vcore", 0));
                         v.Add(new Voltage("+5V", 1, 4, 1));
                         v.Add(new Voltage("AVSB", 2, 34, 34));

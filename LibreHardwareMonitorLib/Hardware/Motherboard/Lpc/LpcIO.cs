@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Text;
 using System.Threading;
 using LibreHardwareMonitor.Hardware.Cpu;
+using LibreHardwareMonitor.Hardware.Motherboard.Lpc.EC;
 
 namespace LibreHardwareMonitor.Hardware.Motherboard.Lpc;
 
@@ -63,6 +64,12 @@ internal class LpcIO
 
     private void Detect(Motherboard motherboard)
     {
+        if (motherboard.Model == Model.GMKTEC_EVO_X2)
+        {
+            _superIOs.Add(new AXB35XX());
+            return;
+        }
+
         for (int i = 0; i < REGISTER_PORTS.Length; i++)
         {
             var port = new LpcPort(REGISTER_PORTS[i], VALUE_PORTS[i]);
